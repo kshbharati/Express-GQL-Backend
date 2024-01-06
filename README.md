@@ -5,20 +5,20 @@
   
   # Env file parameters: 
   
-  #POSTGRES
+  # POSTGRES
   POSTGRES_USER=#username
   POSTGRES_DB=#db_name
   POSTGRES_PASSWORD=#passsword
   
   DATABASE_URL=#db_url
   
+  # NODE
+  NODE_ENV=development OR production
   
-  NODE_ENV=development
-  
-  #JWT
+  # JWT
   JWT_SECRET_KEY = #SECRET_KEY
   JWT_EXPIRES_IN = 24h #Expiry Here
   
-  #REDIS
-  REDIS_PASSWORD = redis_pass_here
+  # REDIS
+  REDIS_PASSWORD = #redis_pass_here
 ```
