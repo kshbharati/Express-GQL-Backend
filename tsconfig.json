@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "baseUrl": "./",
+        "outDir": "dist",
+        "module": "CommonJS",
+        "target": "ES2016",
+        "lib": ["ES2022", "ESNext.AsyncIterable", "DOM"],
+        "esModuleInterop": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "strictPropertyInitialization": false,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "paths": {
+            "@root/*": ["./src/*"],
+        }
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "dist"],
+
+    // "ts-node": {
+    //     "compilerOptions": {
+    //         "module": "CommonJS"
+    //     }
+    // }
+}
