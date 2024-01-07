@@ -30,7 +30,7 @@ import { UserResolver } from "@root/resolvers/UserResolver";
 import bodyParser from "body-parser";
 
 import { prismaContext, AppContext, redisContext} from "./context";
-import {getToken } from "./helpers";
+import {formatToken } from "./TokenMgmt";
 
 // The ApolloServer constructor requires two parameters: your schema
 
@@ -68,8 +68,32 @@ async function app(){
         ],
     });
 
-    await server.start(); //Start server with express
+    await server.start(); //Start Graphql server with express
 
+    api.use(
+        GRAPHQL_PATH,
+        cors(),
+        express.json(),
+        expressMiddleware(server, {
+            context: async (req): Promise<AppContext> => {
+                let token = req.req.headers?.authorization;
+
+                if (token) token = formatToken(token); //formats token data
+
+                return {
+                    prisma: prismaContext,
+                    redis: await redisContext,
+                    token: token,
+                };
+            },
+        })
+    );
+
+    /*
+     * Other Endpoints for File Uploads
+     *
+     */
+    //TODO Use Router and move the endpoints to seperate file
     //Multer Config
     const storage = multer.diskStorage({
         destination: (req, file, cb) => {
@@ -84,47 +108,24 @@ async function app(){
 
     api.use(bodyParser.json());
 
-    api.post(
-        UPLOAD_PATH,
-        cors(),
-        upload.single("file"),
-        (req, res) => {
-            if(req.file==undefined){
-                res.status(300).json({error:"Image Upload Failed"});
-                return;
-            }
-
-            console.log(req.file);
-            if (!req.file) {
-                res.status(400).json({ error: "No File Uploaded" });
-                return;
-            }
-
-            res.json({
-                message: "File Uploaded Successfully",
-                filename: req.file?.filename,
-            });
+    api.post(UPLOAD_PATH, cors(), upload.single("file"), (req, res) => {
+        if (req.file == undefined) {
+            res.status(300).json({ error: "Image Upload Failed" });
+            return;
         }
-    );
 
-    api.use(
-        GRAPHQL_PATH,
-        cors(),
-        express.json(),
-        expressMiddleware(server, {
-            context: async (req) : Promise<AppContext>=> {
-                let token = req.req.headers?.authorization;
-                
-                if(token) token = getToken(token); //formats token data
+        console.log(req.file);
+        if (!req.file) {
+            res.status(400).json({ error: "No File Uploaded" });
+            return;
+        }
 
-                return {
-                    prisma: prismaContext,
-                    redis: await redisContext,
-                    token: token,
-                };
-            }
-        })
-    );
+        res.json({
+            message: "File Uploaded Successfully",
+            filename: req.file?.filename,
+        });
+    });
+
 
     await new Promise<void>((resolve) =>
         httpServer.listen({ port: 4000 }, resolve)
