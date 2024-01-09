@@ -70,6 +70,7 @@ async function app(){
 
     await server.start(); //Start Graphql server with express
 
+    //TODO Change token request and response as set cookie or header variable
     api.use(
         GRAPHQL_PATH,
         cors(),
