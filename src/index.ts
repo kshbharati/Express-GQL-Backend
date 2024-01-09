@@ -76,13 +76,12 @@ async function app(){
         express.json(),
         expressMiddleware(server, {
             context: async (req): Promise<AppContext> => {
-                let token = req.req.headers?.authorization;
-
-                if (token) token = formatToken(token); //formats token data
+                
+                let token = req.req.headers?.authorization ? formatToken(req.req.headers?.authorization):req.req.headers?.token as string;
 
                 return {
                     prisma: prismaContext,
-                    redis: await redisContext,
+                    redis: redisContext,
                     token: token,
                 };
             },
