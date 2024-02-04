@@ -185,12 +185,6 @@ export class UserResolver {
         @Arg("data") data: UserLoginInput,
         @Ctx() ctx: AppContext
     ): Promise<UserResponse> {
-        const loggedUser = await getLoggedUser(ctx);
-        if (loggedUser instanceof GraphQLError) throw loggedUser;
-
-        if (loggedUser)
-            throw GQLError(ServerError.LOGGED_IN);
-        
         const user = await ctx.prisma.user.findUnique({
             where: {
                 email: data.email,
@@ -207,6 +201,7 @@ export class UserResolver {
             email: user.email,
         });
 
+        await ctx.redis.del(user.email);
         await ctx.redis.set(user.email, token); //Set user email and token pkey-pair on redis
 
         return {
