@@ -19,7 +19,7 @@ import multer from 'multer';
 
 import cors from "cors";
 
-import { GraphQLScalarType } from "graphql";
+import { formatError, GraphQLError, GraphQLFormattedError, GraphQLScalarType } from "graphql";
 import { DateTimeResolver } from "graphql-scalars";
 
 
@@ -66,6 +66,14 @@ async function app(){
             ApolloServerPluginDrainHttpServer({ httpServer }),
             // ApolloServerPluginLandingPageDisabled(), //Uncomment to Disable Sandbox
         ],
+        formatError:(formattedError:GraphQLFormattedError) => {
+            return {
+                message: formattedError.message,
+                code: formattedError.extensions?.code,
+                field: formattedError.extensions?.field
+            }
+        },
+        includeStacktraceInErrorResponses:false
     });
 
     await server.start(); //Start Graphql server with express
@@ -86,7 +94,8 @@ async function app(){
                     token: token,
                 };
             },
-        })
+        }),
+        
     );
 
     /*
